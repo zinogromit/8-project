@@ -55,6 +55,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\serve.ps1
 - `serve.ps1`: localhost 정적 파일 서버
 - `assets/*.jpg`: 최적화한 AI 콘셉트 이미지
 - `assets/favicon.svg`: 아이콘카페 파비콘
+- `assets/og-card.png`: 1200×630 공유 미리보기 이미지 (`og-card-source.png`는 원본)
 - `assets/jsbarcode.min.js`: [JsBarcode 3.11.6](https://github.com/lindell/JsBarcode), MIT 라이선스, Code128 렌더링용
 
 ## 발표 후 실제 운영으로 전환할 때 필요한 자료
