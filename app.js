@@ -20,7 +20,7 @@
   const asset = name => base + 'assets/' + name;
   const seed = () => ({
     menus: [
-      {id:'cake',category:'signature',name:'제주 구좌 유기농 당근케이크',description:'당근과 과일의 달콤함을 담은 시그니처 디저트',price:7500,image:'carrot-cake.jpg',soldOut:false,visible:true},
+      {id:'cake',category:'signature',name:'제주 구좌 유기농 당근케이크',description:'당근과 과일의 달콤함을 담은 시그니처 디저트',price:7500,image:'carrot-cake-v2.jpg',soldOut:false,visible:true},
       {id:'americano',category:'coffee',name:'아메리카노',description:'깊고 깔끔한 에스프레소의 균형',price:4500,image:'americano.jpg',soldOut:false,visible:true},
       {id:'latte',category:'coffee',name:'카페라떼',description:'부드러운 우유와 진한 에스프레소',price:5000,image:'cafe-latte.jpg',soldOut:false,visible:true},
       {id:'vanilla',category:'coffee',name:'바닐라라떼',description:'은은한 바닐라 향의 달콤한 라떼',price:5500,image:'vanilla-latte.jpg',soldOut:false,visible:true},
@@ -37,6 +37,9 @@
   let state;
   try { state = JSON.parse(localStorage.getItem(STORE)) || seed(); } catch { state = seed(); }
   if (!state.menus || !state.content || !state.campaign || !state.coupons) state = seed();
+  // Update only the bundled photo; keep any image uploaded in the demo admin.
+  const cakeMenu = state.menus.find(m => m.id === 'cake');
+  if (cakeMenu?.image === 'carrot-cake.jpg') cakeMenu.image = 'carrot-cake-v2.jpg';
   // Preserve issued demo coupons and edits while upgrading the previous placeholder location.
   if (state.content.address === '서울시 예시구 카페로 00 (발표용 예시)') {
     state.content.address = CAMPUS_ADDRESS;
@@ -55,7 +58,7 @@
   const mine = () => state.coupons.find(c => c.claim === getClaim());
   const status = c => c.redeemedAt ? '사용완료' : Date.now() >= new Date(c.expiresAt).getTime() ? '만료' : '미사용';
   const campaignOpen = () => { const c=state.campaign, now=Date.now(); return c.active && (!c.startsAt || now >= new Date(c.startsAt).getTime()) && (!c.endsAt || now < new Date(c.endsAt).getTime()) && !state.menus.find(m=>m.id==='cake')?.soldOut; };
-  const imgSrc = m => m.image?.startsWith('data:image/') ? m.image : asset(m.image || 'carrot-cake.jpg');
+  const imgSrc = m => m.image?.startsWith('data:image/') ? m.image : asset(m.image || 'carrot-cake-v2.jpg');
   const toast = message => { document.querySelector('.toast')?.remove(); const t=document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.textContent=message; document.body.append(t); setTimeout(()=>t.remove(),3500); };
   const nav = () => `<div class="demo-strip">발표용 시연 · 모든 메뉴 정보와 쿠폰은 가상 데이터입니다</div><header class="site-header"><div class="container header-inner"><a class="brand" href="${base}index.html" aria-label="ICON CAFE 홈"><span class="brand-mark">✳</span>ICON CAFE</a><nav class="nav" aria-label="주요 메뉴"><a href="${base}index.html#story">이야기</a><a href="${base}index.html#menu">메뉴</a><a href="${base}index.html#coupon">첫 방문 혜택</a><a href="${base}index.html#visit">오시는 길</a></nav><div class="header-actions"><a class="btn btn-outline" href="${base}staff/">직원 화면</a><a class="btn btn-primary" href="${base}admin/">관리자 시연 ↗</a></div></div></header>`;
   const footer = () => `<footer class="footer"><div class="container footer-grid"><div><div class="brand"><span class="brand-mark">✳</span>ICON CAFE</div><p>제주 구좌 유기농 당근케이크를 소개하는 발표용 콘셉트 웹앱입니다. 사진·가격·원재료 문구·영업시간은 확인 전 정보입니다.</p><div class="footer-contact"><span>장소 <strong>${esc(state.content.place || state.content.address)}</strong></span><span>주소 <strong>${esc(state.content.address)}</strong></span><span>전화 <a href="tel:${esc(String(state.content.phone).replace(/[^0-9+]/g,''))}">${esc(state.content.phone)}</a></span></div></div><div class="footer-links"><a href="${base}staff/">직원 시연</a><a href="${base}admin/">관리자 시연</a></div></div></footer>`;
@@ -193,4 +196,5 @@
   window.addEventListener('beforeunload',stopCamera);
   if(page==='home')renderHome();else if(page==='staff')renderStaff();else renderAdmin();
 })();
+
 
