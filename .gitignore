@@ -1,0 +1,10 @@
+# Local credentials and editor files
+.env
+.env.*
+!.env.example
+*.log
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
