@@ -38,6 +38,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\serve.ps1
 
 당근케이크 소개 영역에는 제공받은 HTML의 스케치와 완성 콘셉트 이미지를 활용한 자동 모션 그래픽을 적용했습니다. 영역이 화면에 들어오면 스케치가 케이크 이미지로 부드럽게 바뀌고 반복됩니다. 움직임 줄이기 설정에서는 완성 이미지를 정지 화면으로 보여줍니다.
 
+홈페이지는 `assets/bakery_cafe_bgm.mp3`의 자동 재생을 시도합니다. 브라우저가 소리 있는 자동 재생을 제한하면 첫 클릭이나 키 입력 때 재생을 다시 시도합니다. 오른쪽 아래에서 음악을 켜고 끄거나 볼륨을 조절할 수 있으며 설정은 해당 브라우저에 저장됩니다.
+
 ## 구현 범위와 한계
 
 - 쿠폰은 발급 시각부터 기본 168시간 유효하고, 같은 브라우저에서는 기존 쿠폰을 다시 표시합니다. 사용완료·만료 후 자동 재발급하지 않습니다.
@@ -53,10 +55,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\serve.ps1
 - `PLAN.md`: 발표용 구현 계획과 운영 전 전환 사항
 - `index.html`, `staff/index.html`, `admin/index.html`: 화면 진입점
 - `app.js`: 시연 데이터와 화면 동작
+- `bgm.js`: 홈페이지 배경음악 재생 및 볼륨 설정
 - `styles.css`: 반응형 디자인
 - `serve.ps1`: localhost 정적 파일 서버
 - `assets/*.jpg`: 최적화한 AI 콘셉트 이미지
 - `assets/cake-before.webp`, `assets/cake-after.webp`: 첨부 HTML에서 분리한 모션용 콘셉트 이미지
+- `assets/bakery_cafe_bgm.mp3`: 제공받은 홈페이지 배경음악
 - `assets/favicon.svg`: 아이콘카페 파비콘
 - `assets/og-card.png`: 1200×630 공유 미리보기 이미지 (`og-card-source.png`는 원본)
 - `assets/jsbarcode.min.js`: [JsBarcode 3.11.6](https://github.com/lindell/JsBarcode), MIT 라이선스, Code128 렌더링용

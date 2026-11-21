@@ -23,6 +23,7 @@ try {
             '.jpg' { 'image/jpeg' }
             '.png' { 'image/png' }
             '.webp' { 'image/webp' }
+            '.mp3' { 'audio/mpeg' }
             '.svg' { 'image/svg+xml' }
             default { 'application/octet-stream' }
           }

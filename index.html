@@ -25,9 +25,15 @@
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./assets/jsbarcode.min.js"></script>
   <script defer src="./app.js"></script>
+  <script defer src="./bgm.js"></script>
 </head>
 <body data-page="home">
   <div id="app"></div>
+  <audio id="site-bgm" src="./assets/bakery_cafe_bgm.mp3" preload="auto" loop></audio>
+  <div class="bgm-player" aria-label="배경음악 조절">
+    <button id="bgm-toggle" class="bgm-toggle" type="button" aria-label="배경음악 재생" aria-pressed="false"><span class="bgm-icon" aria-hidden="true">♪</span><span id="bgm-toggle-text">음악 켜기</span></button>
+    <label class="bgm-volume" for="bgm-volume"><span class="sr-only">배경음악 볼륨</span><input id="bgm-volume" type="range" min="0" max="100" value="30" aria-label="배경음악 볼륨"><output id="bgm-volume-value" for="bgm-volume">30%</output></label>
+  </div>
 </body>
 </html>
 
