@@ -36,7 +36,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\serve.ps1
 
 가격과 메뉴 설명은 `app.js`의 `seed()` 함수에 있습니다. 장소는 계원예술대학교 평생교육원 구내카페로 표시하고, 지도는 평생교육원 위치를 가리킵니다. 구내카페의 정확한 건물·층과 영업시간은 아직 확인되지 않았습니다. 화면의 9개 음식·음료 사진은 AI가 만든 **가상 콘셉트 이미지**입니다. 최적화된 JPEG는 `assets/`에 있으며 원본 PNG도 같은 폴더에 보관했습니다. 관리자 화면에서 메뉴 이미지를 업로드해 이 브라우저의 시연 데이터로 교체할 수 있습니다. 사진은 640px JPEG로 축소해 저장합니다.
 
-당근케이크 소개 영역에는 제공받은 비교 HTML을 바탕으로 스케치와 완성 콘셉트를 겹쳐 보는 슬라이더를 적용했습니다. 화면에 들어오면 한 번 전환되며, 마우스·터치 드래그, 키보드 방향키, 범위 조절 막대와 선택 버튼으로 비교할 수 있습니다. 움직임 줄이기 설정에서는 자동 전환을 생략합니다.
+당근케이크 소개 영역에는 제공받은 HTML의 스케치와 완성 콘셉트 이미지를 활용한 자동 모션 그래픽을 적용했습니다. 영역이 화면에 들어오면 스케치가 케이크 이미지로 부드럽게 바뀌고 반복됩니다. 움직임 줄이기 설정에서는 완성 이미지를 정지 화면으로 보여줍니다.
 
 ## 구현 범위와 한계
 
@@ -56,7 +56,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\serve.ps1
 - `styles.css`: 반응형 디자인
 - `serve.ps1`: localhost 정적 파일 서버
 - `assets/*.jpg`: 최적화한 AI 콘셉트 이미지
-- `assets/cake-before.webp`, `assets/cake-after.webp`: 첨부 HTML에서 분리한 비교용 콘셉트 이미지
+- `assets/cake-before.webp`, `assets/cake-after.webp`: 첨부 HTML에서 분리한 모션용 콘셉트 이미지
 - `assets/favicon.svg`: 아이콘카페 파비콘
 - `assets/og-card.png`: 1200×630 공유 미리보기 이미지 (`og-card-source.png`는 원본)
 - `assets/jsbarcode.min.js`: [JsBarcode 3.11.6](https://github.com/lindell/JsBarcode), MIT 라이선스, Code128 렌더링용

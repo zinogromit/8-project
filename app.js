@@ -65,82 +65,31 @@
   const couponButtonText = () => mine() ? '내 쿠폰 보기' : state.content.cta;
   const menuCard = m => `<article class="menu-card"><div class="menu-image"><img src="${esc(imgSrc(m))}" alt="${esc(m.name)}의 발표용 콘셉트 이미지" loading="lazy" width="400" height="400">${m.soldOut?'<span class="sold-out">품절</span>':''}</div><div class="menu-card-body"><div class="menu-meta">${m.category==='signature'?'NEW SIGNATURE':({coffee:'COFFEE',drink:'DRINK',dessert:'DESSERT'}[m.category]||'MENU')}</div><h3>${esc(m.name)}</h3><p>${esc(m.description)}</p><div class="menu-price">${won(m.price)} <span class="muted small">· 예시 가격</span></div></div></article>`;
   let menuFilter = 'all';
-  let comparisonAnimated = false;
-  let comparisonCleanup = () => {};
-  function initCakeComparison(){
-    const frame = app.querySelector('.cake-compare-frame');
-    if (!frame) return;
-    const handle = frame.querySelector('.cake-compare-handle');
-    const range = app.querySelector('#cake-compare-range');
-    const output = app.querySelector('#cake-compare-value');
-    const beforeLabel = frame.querySelector('.cake-compare-before-label');
-    const afterLabel = frame.querySelector('.cake-compare-after-label');
-    const presets = [...app.querySelectorAll('[data-cake-split]')];
-    const controller = new AbortController();
-    let split = 50, pointer = null, animation = 0, observer;
-    const setSplit = value => {
-      split = Math.max(0, Math.min(100, Math.round(value)));
-      frame.style.setProperty('--cake-split', split + '%');
-      range.value = split;
-      output.value = split + '%';
-      handle.setAttribute('aria-valuenow', split);
-      handle.setAttribute('aria-valuetext', `디자인 스케치 ${split}%`);
-      beforeLabel.hidden = split < 16;
-      afterLabel.hidden = split > 84;
-      presets.forEach(button => button.setAttribute('aria-pressed', Number(button.dataset.cakeSplit) === split));
-    };
-    const stopAnimation = () => { if (animation) cancelAnimationFrame(animation); animation = 0; observer?.disconnect(); comparisonAnimated = true; };
-    const fromPointer = event => {
-      const rect = frame.getBoundingClientRect();
-      setSplit((event.clientX - rect.left) / rect.width * 100);
-    };
-    frame.addEventListener('pointerdown', event => {
-      if (pointer !== null || event.button !== 0) return;
-      stopAnimation(); pointer = event.pointerId;
-      frame.setPointerCapture(pointer);
-      fromPointer(event);
-    }, {signal: controller.signal});
-    frame.addEventListener('pointermove', event => { if (event.pointerId === pointer) fromPointer(event); }, {signal: controller.signal});
-    frame.addEventListener('pointerup', event => { if (event.pointerId === pointer) { fromPointer(event); pointer = null; } }, {signal: controller.signal});
-    for (const type of ['pointercancel', 'lostpointercapture']) frame.addEventListener(type, event => { if (event.pointerId === pointer) pointer = null; }, {signal: controller.signal});
-    handle.addEventListener('keydown', event => {
-      const next = {ArrowLeft: split - 5, ArrowRight: split + 5, Home: 0, End: 100}[event.key];
-      if (next === undefined) return;
-      event.preventDefault(); stopAnimation(); setSplit(next);
-    }, {signal: controller.signal});
-    range.addEventListener('input', () => { stopAnimation(); setSplit(range.valueAsNumber); }, {signal: controller.signal});
-    presets.forEach(button => button.addEventListener('click', () => { stopAnimation(); setSplit(Number(button.dataset.cakeSplit)); }, {signal: controller.signal}));
-    setSplit(50);
-    if (!comparisonAnimated && !matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-      observer = new IntersectionObserver(entries => {
-        if (!entries[0].isIntersecting) return;
-        observer.disconnect(); setSplit(100);
-        const start = performance.now();
-        const step = now => {
-          const progress = Math.min(1, (now - start) / 1250);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          setSplit(100 - eased * 50);
-          if (progress < 1) animation = requestAnimationFrame(step);
-          else { animation = 0; comparisonAnimated = true; }
-        };
-        animation = requestAnimationFrame(step);
-      }, {threshold: .35});
-      observer.observe(frame);
-    }
-    comparisonCleanup = () => { controller.abort(); observer?.disconnect(); if (animation) cancelAnimationFrame(animation); };
+  let motionObserver;
+  function initCakeMotion(){
+    motionObserver?.disconnect();
+    const stage = app.querySelector('.cake-motion-stage');
+    if (!stage) return;
+    if (!('IntersectionObserver' in window)) { stage.classList.add('is-playing'); return; }
+    motionObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        stage.classList.add('is-playing');
+        motionObserver.disconnect();
+      }
+    }, {threshold: .25});
+    motionObserver.observe(stage);
   }
   function renderHome(){
-    comparisonCleanup();
     const c=state.content, cake=state.menus.find(m=>m.id==='cake')||state.menus[0];
     app.innerHTML = nav()+`<main>
       <section class="hero"><div class="container hero-grid"><div class="hero-copy fade-in"><span class="eyebrow">NEW SIGNATURE DESSERT</span><h1>${esc(c.heroTitle).replace('자연스럽게.','<em>자연스럽게.</em>')}</h1><p class="hero-lead">${esc(c.heroLead)}</p><div class="hero-benefit"><span aria-hidden="true">✦</span><span>첫 방문에 당근케이크를 구매하면<br><strong>아메리카노 1잔 무료</strong> · 직원 확인 후 사용</span></div><div class="hero-cta"><button class="btn btn-primary" data-action="coupon">${esc(couponButtonText())} <span aria-hidden="true">↗</span></button><span class="small muted">발급 후 7일간 유효 · 발표용 쿠폰</span></div></div><div class="hero-visual fade-in"><img src="${esc(imgSrc(cake))}" alt="당근케이크 발표용 콘셉트 사진" width="900" height="760"><div class="hero-badge">A LITTLE<br>SWEET<br>PAUSE ✳</div><span class="hero-caption">AI CONCEPT IMAGE · 실제 판매 제품과 다를 수 있습니다</span></div></div></section>
       <section class="section section-alt" id="story"><div class="container"><div class="section-head"><div><span class="eyebrow">OUR STORY</span><h2>한 조각에 담은<br>산뜻한 오후</h2></div><p>${esc(c.story)}<br><small>원산지·유기농·레시피 문구는 출시 전 증빙 확인이 필요합니다.</small></p></div><div class="story-grid"><article class="story-card"><span class="story-number">01 / INGREDIENT</span><h3>제주에서 온 영감</h3><p>제주 구좌 당근의 선명한 색과 풍미에서 시작한 메뉴 콘셉트입니다.</p></article><article class="story-card"><span class="story-number">02 / FLAVOR</span><h3>재료가 가진 단맛</h3><p>당근과 과일 본연의 맛을 살린다는 기획 방향을 담았습니다. 실제 레시피는 확인 전입니다.</p></article><article class="story-card"><span class="story-number">03 / MOMENT</span><h3>커피와 함께</h3><p>한 조각의 케이크와 깔끔한 아메리카노가 만드는 짧은 쉼표.</p></article></div></div></section>
-      <section class="section"><div class="container signature"><div class="cake-compare"><div class="cake-compare-frame" style="--cake-split:50%"><div class="cake-compare-layer cake-compare-after"><img src="${asset('cake-after.webp')}" alt="당근케이크 완성 콘셉트 이미지" loading="lazy" width="1254" height="1254"></div><div class="cake-compare-layer cake-compare-before"><img src="${asset('cake-before.webp')}" alt="당근케이크 연필 스케치 시안" loading="lazy" width="1254" height="1254"></div><span class="cake-compare-divider" aria-hidden="true"></span><span class="cake-compare-label cake-compare-before-label">디자인 스케치</span><span class="cake-compare-label cake-compare-after-label">완성 콘셉트</span><span class="cake-compare-handle" role="slider" tabindex="0" aria-label="당근케이크 스케치와 완성 콘셉트 비교" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span aria-hidden="true">‹ ›</span></span></div><div class="cake-compare-controls"><label for="cake-compare-range">이미지를 좌우로 밀어 비교해 보세요</label><input id="cake-compare-range" type="range" min="0" max="100" value="50" aria-label="디자인 스케치 표시 비율"><output id="cake-compare-value" for="cake-compare-range">50%</output></div><div class="cake-compare-presets" aria-label="비교 화면 선택"><button type="button" data-cake-split="100">스케치</button><button type="button" data-cake-split="50">반반 비교</button><button type="button" data-cake-split="0">완성 이미지</button></div><p class="cake-compare-note">AI로 만든 디자인 시안과 완성 콘셉트입니다. 실제 판매 제품 사진이 아닙니다.</p></div><div><span class="eyebrow">SIGNATURE PAIRING</span><h2>오늘의 작은 쉼표,<br>당근케이크</h2><p class="muted">촉촉한 케이크와 산뜻한 커피의 만남. 바쁜 하루 사이, 잠깐의 여유를 즐겨보세요.</p><div class="pairing"><span class="pairing-dot">✳</span><div><strong>${esc(cake.name)} + 아메리카노</strong><br><span class="small muted">추천 페어링 · 실제 메뉴와 가격 확인 필요</span></div></div><a class="btn btn-outline" href="#menu">전체 메뉴 보기 ↗</a></div></div></section>
+      <section class="section"><div class="container signature"><figure class="cake-motion"><div class="cake-motion-stage" role="img" aria-label="당근케이크 연필 스케치가 완성 콘셉트 이미지로 변하는 모션 그래픽"><img class="cake-motion-sketch" src="${asset('cake-before.webp')}" alt="" loading="lazy" width="1254" height="1254"><img class="cake-motion-finished" src="${asset('cake-after.webp')}" alt="" loading="lazy" width="1254" height="1254"><span class="cake-motion-glow" aria-hidden="true"></span></div><figcaption>스케치에서 달콤한 한 조각으로 <span>· AI 콘셉트 이미지</span></figcaption></figure><div><span class="eyebrow">SIGNATURE PAIRING</span><h2>오늘의 작은 쉼표,<br>당근케이크</h2><p class="muted">촉촉한 케이크와 산뜻한 커피의 만남. 바쁜 하루 사이, 잠깐의 여유를 즐겨보세요.</p><div class="pairing"><span class="pairing-dot">✳</span><div><strong>${esc(cake.name)} + 아메리카노</strong><br><span class="small muted">추천 페어링 · 실제 메뉴와 가격 확인 필요</span></div></div><a class="btn btn-outline" href="#menu">전체 메뉴 보기 ↗</a></div></div></section>
       <section class="section section-alt" id="menu"><div class="container"><div class="section-head"><div><span class="eyebrow">THE MENU</span><h2>아이콘카페 메뉴</h2></div><p>한 잔의 커피부터 달콤한 디저트까지. 아래 9종과 가격은 모두 발표용 예시입니다.</p></div><div class="menu-tabs" role="group" aria-label="메뉴 분류"><button class="tab ${menuFilter==='all'?'active':''}" data-filter="all">전체</button><button class="tab ${menuFilter==='coffee'?'active':''}" data-filter="coffee">커피</button><button class="tab ${menuFilter==='drink'?'active':''}" data-filter="drink">음료</button><button class="tab ${menuFilter==='dessert'?'active':''}" data-filter="dessert">디저트</button></div><div class="menu-grid" id="menu-grid">${state.menus.filter(m=>m.visible && (menuFilter==='all'||m.category===menuFilter)).map(menuCard).join('')}</div><p class="image-note">※ 모든 사진은 AI로 만든 콘셉트 시안이며 실제 판매 제품을 촬영한 사진이 아닙니다.</p></div></section>
       <section class="section coupon-section" id="coupon"><div class="container coupon-grid"><div><span class="eyebrow">FIRST VISIT GIFT</span><h2>첫 방문이라면,<br>커피 한 잔을 선물할게요.</h2><p>당근케이크 구매 고객을 위한 아메리카노 무료 쿠폰. 직원이 첫 방문과 구매를 확인한 뒤 사용할 수 있습니다.</p><button class="btn btn-dark" data-action="coupon" ${!campaignOpen()&&!mine()?'disabled':''}>${esc(couponButtonText())} ↗</button><p class="small">${!campaignOpen()&&!mine()?'현재 신규 발급이 중지되었습니다.':'발급 후 7×24시간 유효 · 동일 브라우저에서는 기존 쿠폰을 표시합니다.'}</p></div><div class="coupon-ticket" aria-label="쿠폰 혜택 안내"><div class="ticket-top"><span class="ticket-logo">ICON CAFE ✳</span><span class="ticket-label">WELCOME GIFT</span></div><div class="ticket-title">AMERICANO<br>ON US.</div><p class="small muted">${esc(state.campaign.benefit)}</p><div class="ticket-rule"></div><div class="ticket-foot"><span>FIRST VISIT ONLY</span><span>7 DAYS FROM ISSUE</span></div></div></div></section>
       <section class="section" id="visit"><div class="container"><div class="section-head"><div><span class="eyebrow">VISIT US</span><h2>아이콘카페에서 만나요</h2></div><p>계원예술대학교 평생교육원 안의 카페를 찾아주세요. 구내카페의 정확한 건물·층과 영업시간은 확인 후 안내하겠습니다.</p></div><div class="visit-grid"><div><div class="info-row"><strong>장소</strong><span>${esc(c.place || c.address)}</span></div><div class="info-row"><strong>주소</strong><span>${esc(c.address)}</span></div><div class="info-row"><strong>영업시간</strong><span>${esc(c.hours)}</span></div><div class="info-row"><strong>전화</strong><span><a href="tel:${esc(String(c.phone).replace(/[^0-9+]/g,''))}">${esc(c.phone)}</a></span></div>${c.map?`<p><a class="btn btn-outline" href="${esc(c.map)}" target="_blank" rel="noopener noreferrer">지도에서 위치 보기 ↗</a></p>`:''}</div><div class="visit-box">${c.mapEmbed?`<iframe class="visit-map" src="${esc(c.mapEmbed)}" title="계원예술대학교 평생교육원 위치 지도" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>`:`<div class="visit-placeholder"><span aria-hidden="true">⌖</span><strong>지도 준비 중</strong></div>`}<p class="map-caption">지도는 평생교육원 위치를 표시합니다. 구내카페의 상세 위치는 현장에서 확인해 주세요.</p></div></div></div></section>
     </main>${footer()}<div class="sticky-cta"><button class="btn btn-primary" data-action="coupon">${esc(couponButtonText())} ↗</button></div><div id="modal-root"></div>`;
-    initCakeComparison();
+    initCakeMotion();
   }
   function showCoupon(){
     const c=mine(); if(!c){if(!campaignOpen()){toast('현재 신규 쿠폰 발급이 중지되었습니다.');return;}const token=id();const now=Date.now();const coupon={id:id(),claim:token,code:code(),issuedAt:new Date(now).toISOString(),expiresAt:new Date(now+Number(state.campaign.validityHours)*3600000).toISOString(),redeemedAt:null,redeemedBy:null,benefit:state.campaign.benefit};state.coupons.push(coupon);state.events.push({type:'ISSUED',couponId:coupon.id,at:coupon.issuedAt});localStorage.setItem(CLAIM,token);save();renderHome();}

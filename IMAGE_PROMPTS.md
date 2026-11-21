@@ -18,9 +18,9 @@
 
 생성 방식: 내장 `image_gen` 도구. 제품 실물과 다를 수 있으므로 출시 전 실제 사진으로 교체한다.
 
-## 스케치와 완성 콘셉트 비교
+## 스케치에서 완성 콘셉트로
 
-`assets/cake-before.webp`와 `assets/cake-after.webp`는 제공받은 `Carrot_Cake_Before_After.html`에 포함된 이미지를 분리한 것이다. 당근케이크 소개 영역에서 좌우 비교 슬라이더에 사용한다. 둘 다 발표용 콘셉트 이미지이며 실제 제품 사진이 아니다.
+`assets/cake-before.webp`와 `assets/cake-after.webp`는 제공받은 `Carrot_Cake_Before_After.html`에 포함된 이미지를 분리한 것이다. 당근케이크 소개 영역에서 스케치가 완성 이미지로 바뀌는 모션에 사용한다. 둘 다 발표용 콘셉트 이미지이며 실제 제품 사진이 아니다.
 
 ## 공유 미리보기 이미지
 
