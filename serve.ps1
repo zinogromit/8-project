@@ -22,6 +22,7 @@ try {
             '.js' { 'text/javascript; charset=utf-8' }
             '.jpg' { 'image/jpeg' }
             '.png' { 'image/png' }
+            '.webp' { 'image/webp' }
             '.svg' { 'image/svg+xml' }
             default { 'application/octet-stream' }
           }
@@ -36,3 +37,4 @@ try {
     } finally { $context.Response.Close() }
   }
 } finally { $listener.Stop(); $listener.Close() }
+
